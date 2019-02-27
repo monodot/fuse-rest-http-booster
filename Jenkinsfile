@@ -21,11 +21,9 @@ pipeline {
   
   stages {
     
-    stage('Git Checkout') {
+    stage('Pipeline Start') {
       steps {
-        // Turn off Git's SSL cert check, uncomment if needed
-        // sh 'git config --global http.sslVerify false'
-        git url: "${APPLICATION_SOURCE_REPO}"
+        echo 'Pipeline starting...'
       }
     }
     
