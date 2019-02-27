@@ -29,6 +29,26 @@ For more details about running this booster on a single-node OpenShift cluster, 
 IMPORTANT: This booster requires Java 8 JDK or later and Maven 3.3.x or later.
 
 
+== Deploying the booster using OpenShift Applier
+
+Move to .applier directory:
+
+    # cd .applier
+
+Pull openshift-applier role:
+
+    # ansible-galaxy install -r requirements.yml -p roles
+    # ansible-galaxy install -r .applier/requirements.yml -p .applier/roles
+
+Login into your OpenShift Cluster:
+
+    # oc login https://console.boeing.emea-1.rht-labs.com
+
+Run Ansible playbook to deploy the content:
+
+    # ansible-playbook -i inventory apply.yml
+    # ansible-playbook -e filter_tags=pipeline -i .applier/inventory .applier/apply.yml
+
 == Running the booster on a single-node OpenShift cluster
 
 A single-node OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.

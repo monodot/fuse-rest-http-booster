@@ -28,3 +28,8 @@ target/
 .classpath
 .project
 .settings/
+
+# Ansible roles
+.applier/roles
+*.retry
+
