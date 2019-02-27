@@ -1,61 +1,32 @@
-apiVersion: v1
+---
 kind: Template
-labels:
-  template: fuse-spring-boot-nexus-pipeline
+apiVersion: v1
 metadata:
+  name: spring-boot-app-build
   annotations:
-    description: Application template for a Fuse application built using a Jenkins Pipeline
-    iconClass: icon-rh-integration
-    tags: builder,jboss-fuse,java,xpaas,spring-boot
-  name: fuse-spring-boot-nexus-pipeline
+    openshift.io/display-name: Spring Boot Application Build
+    description: S2I binary build config to create an image with the application baked in.
+    iconClass: fa-cube
+    tags: binary
+labels:
+  app: "${APPLICATION_NAME}"
+  template: spring-boot-app-build
 objects:
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}
-    namespace: ${NAMESPACE}
-- kind: "BuildConfig"
-  apiVersion: "v1"
-  metadata:
-    labels:
-      application: ${APPLICATION_NAME}
-    name: "${APPLICATION_NAME}-pipeline"
-    namespace: "${NAMESPACE}"
-  spec:
-    source:
-      type: Git
-      git:
-        uri: ${SOURCE_REPOSITORY_URL}
-        ref: ${SOURCE_REPOSITORY_REF}
-      contextDir: ${CONTEXT_DIR}
-    triggers:
-    - type: "GitHub"
-      github:
-        secret: ${GITHUB_WEBHOOK_SECRET}
-    - type: "ConfigChange"
-    strategy:
-      type: "JenkinsPipeline"
-      jenkinsPipelineStrategy:
-        jenkinsfilePath: ${PIPELINE_SCRIPT}
-        env:
-        - name: "APPLICATION_SOURCE_REPO"
-          value: "${APPLICATION_SOURCE_REPO}"
-        - name: "APPLICATION_SOURCE_REF"
-          value: "${APPLICATION_SOURCE_REF}"
 - apiVersion: v1
   kind: BuildConfig
   metadata:
     labels:
-      application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}
-    namespace: "${NAMESPACE}"
+      build: "${APPLICATION_NAME}"
+    name: "${APPLICATION_NAME}"
   spec:
+    nodeSelector:
     output:
       to:
         kind: ImageStreamTag
-        name: ${APPLICATION_NAME}:latest
+        name: "${APPLICATION_NAME}:${BUILD_TAG}"
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
     source:
       binary: {}
       type: Binary
@@ -65,53 +36,37 @@ objects:
           kind: ImageStreamTag
           name: ${IMAGE_STREAM_TAG_NAME}
           namespace: ${IMAGE_STREAM_NAMESPACE}
-      type: Source
+        type: Source
+  status:
+    lastVersion: 1
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: "${APPLICATION_NAME}"
+    name: "${APPLICATION_NAME}"
+  spec: {}
 parameters:
-- description: The name for the application.
-  name: APPLICATION_NAME
+- name: APPLICATION_NAME
+  displayName: Application Name
+  description: The name assigned to all objects and the resulting imagestream.
   required: true
-  value: basic-fuse
-- description: The namespace to deploy into
-  name: NAMESPACE
+  value: spring-boot-app
+- name: BUILD_TAG
+  displayName: Build Tag for Docker image
+  description: The tag to apply to the container image once it is built.
   required: true
-- description: Git source URI for application
-  name: SOURCE_REPOSITORY_URL
-  required: true
-  value: https://github.com/redhat-cop/container-pipelines.git
-- description: Git branch/tag reference
-  name: SOURCE_REPOSITORY_REF
-  value: "master"
-- description: Path within Git project to build; empty for root project directory.
-  name: CONTEXT_DIR
-  value: basic-spring-boot
-- description: Source code repo for demo app
-  name: APPLICATION_SOURCE_REPO
-  required: true
-  value: https://github.com/fabric8-quickstarts/spring-boot-camel.git
-- description: Source code branch for demo app
-  name: APPLICATION_SOURCE_REF
-  value: master
-- description: Path within Git project pointing to the pipeline run script
-  name: PIPELINE_SCRIPT
-  value: Jenkinsfile
-- description: GitHub trigger secret
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: GITHUB_WEBHOOK_SECRET
-  required: true
-- description: Generic build trigger secret
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: GENERIC_WEBHOOK_SECRET
-  required: true
-- description: Namespace in which the ImageStreams for Red Hat Middleware images are
+  value: latest
+- name: IMAGE_STREAM_NAMESPACE
+  displayName: Image Stream Namespace
+  description: Namespace in which the ImageStreams for Red Hat Middleware images are
     installed. These ImageStreams are normally installed in the openshift namespace.
     You should only need to modify this if you've installed the ImageStreams in a
     different namespace/project.
-  name: IMAGE_STREAM_NAMESPACE
   required: true
   value: openshift
-- description: Image stream tag for the image you'd like to use to build the application
-  name: IMAGE_STREAM_TAG_NAME
+- name: IMAGE_STREAM_TAG_NAME
+  displayName: Image Stream Tag Name
+  description: Image stream tag for the middleware base image to use to build the application
   required: true
   value: jboss-fuse70-java-openshift:1.0

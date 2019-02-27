@@ -2,12 +2,14 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: fuse-app-pipeline
+  name: spring-boot-app-pipeline-template
   annotations:
-    openshift.io/display-name: Fuse Application Pipeline 
+    openshift.io/display-name: Spring Boot Application Pipeline 
     description: OpenShift Jenkinsfile Strategy Pipeline
     iconClass: fa-cube
     tags: jenkins-pipeline
+  labels:
+    app: spring-boot-app
 objects:
 - apiVersion: v1
   kind: BuildConfig
@@ -76,5 +78,3 @@ parameters:
   description: OCP secret string to configure a GitHub webhook
   generate: expression
   from: "[a-zA-Z0-9]{20}"
-labels:
-  template: fuse-app-pipeline-template

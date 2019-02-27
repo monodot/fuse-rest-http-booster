@@ -18,7 +18,7 @@ sb_prod_namespace_desc: Basic Spring Boot App PROD
 #sb_application_readiness_response: "status.:.UP"
 #sb_application_readiness_path: "/health"
 # sb_sa_name: "jenkins"
-application_name: sample-fuse-app
+application_name: spring-boot-app
 repository_url: "https://github.com/UNKNOWN/fuse-rest-http-booster"
 repository_ref: master
 
@@ -36,21 +36,16 @@ sb_pipeline_vars:
   REPOSITORY_REF: "{{ repository_ref }}"
 
 sb_build_vars:
-  SOMETHING: value
-  FOO: barbuild
+  APPLICATION_NAME: "{{ application_name }}"
   
 sb_dev_deploy_vars:
-  SOMETHING: value
-  FOO: bardev
+  APPLICATION_NAME: "{{ application_name }}"
   
 sb_stage_deploy_vars:
-  SOMETHING: value
-  FOO: barstage
+  APPLICATION_NAME: "{{ application_name }}"
 
 sb_prod_deploy_vars:
-  SOMETHING: value
-  FOO: barprod
-
+  APPLICATION_NAME: "{{ application_name }}"
 
 
 # Define OpenShift objects
