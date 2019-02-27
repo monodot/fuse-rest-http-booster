@@ -28,7 +28,7 @@ objects:
       type: Git
       git:
         uri: "${REPOSITORY_URL}"
-        ref: "${PREPOSITORY_REF}"
+        ref: "${REPOSITORY_REF}"
       contextDir: "${CONTEXT_DIR}"
     strategy:
       jenkinsPipelineStrategy:
@@ -54,13 +54,13 @@ parameters:
   required: true
   value: https://github.com/monodot/fuse-rest-http-booster.git
 - name: REPOSITORY_REF
-  displayName: Pipeline Git Repository Reference
+  displayName: Git Repository Reference
   description: Set this to a branch name, tag or other ref of your repository if you
     are not using the default (master) branch.
   value: labs-pipeline
 - name: CONTEXT_DIR
-  displayName: Git Context Directory for Jenkinsfile
-  description: Set this to the directory where the Jenkinsfile is located (if not using the
+  displayName: Git Context Directory
+  description: Set this to the directory where the application is located (if not using the
     default root directory)
 - name: JENKINSFILE_PATH
   displayName: Jenkinsfile filename

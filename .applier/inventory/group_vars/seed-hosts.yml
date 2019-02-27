@@ -2,32 +2,38 @@
 
 # Setting some of these variables here so that they may be easily overrided
 sb_application_name: basic-spring-boot
-sb_build_namespace: basic-spring-boot-build
-sb_dev_namespace: basic-spring-boot-dev
+# sb_build_namespace: basic-spring-boot-build
+sb_build_namespace: labs-ci-cd
+# sb_dev_namespace: basic-spring-boot-dev
+sb_dev_namespace: labs-dev
 sb_dev_namespace_desc: Basic Spring Boot App DEV
-sb_stage_namespace: basic-spring-boot-stage
+# sb_stage_namespace: basic-spring-boot-stage
+sb_stage_namespace: labs-stage
 sb_stage_namespace_desc: Basic Spring Boot App STAGE
-sb_prod_namespace: basic-spring-boot-prod
+# sb_prod_namespace: basic-spring-boot-prod
+sb_prod_namespace: labs-release
 sb_prod_namespace_desc: Basic Spring Boot App PROD
 # sb_application_repository_url: "https://github.com/jboss-fuse/fuse-rest-http-booster.git"
 # sb_application_repository_ref: master
 #sb_application_readiness_response: "status.:.UP"
 #sb_application_readiness_path: "/health"
 # sb_sa_name: "jenkins"
-pipeline_repository_url: "https://github.com/redhat-cop/container-pipelines.git"
-pipeline_repository_ref: master
-pipeline_context_dir: nexus-spring-boot
-pipeline_script: "Jenkinsfile"
+application_name: sample-fuse-app
+repository_url: "https://github.com/UNKNOWN/fuse-rest-http-booster"
+repository_ref: master
 
 template_dir: "{{ inventory_dir }}/../../.openshift/templates"
 
-# Define variables for each stage
+
+
+# Define variables for each template invocation
+#
+
+# Pipeline template parameters
 sb_pipeline_vars:
-  APPLICATION_NAME: sample-fuse-app
-  PIPELINE_REPOSITORY_URL: "{{ pipeline_repository_url }}"
-  PIPELINE_REPOSITORY_REF: "{{ pipeline_repository_ref }}"
-  CONTEXT_DIR: "{{ pipeline_context_dir }}"
-  PIPELINE_SCRIPT: "{{ pipeline_script }}"
+  APPLICATION_NAME: "{{ application_name }}"
+  REPOSITORY_URL: "{{ repository_url }}"
+  REPOSITORY_REF: "{{ repository_ref }}"
 
 sb_build_vars:
   SOMETHING: value
@@ -46,12 +52,17 @@ sb_prod_deploy_vars:
   FOO: barprod
 
 
+
+# Define OpenShift objects
+#
+
 # OpenShift Applier will create the OpenShift objects defined in this List
+
 openshift_cluster_content:
 
 - object: Pipelines
   content:
-  - name: Sample Application Pipeline
+  - name: Spring Boot Application Pipeline
     template: "{{ template_dir }}/pipeline.yml"
     params_from_vars: "{{ sb_pipeline_vars }}"
     namespace: "{{ sb_build_namespace }}"
@@ -60,7 +71,7 @@ openshift_cluster_content:
 
 - object: Projects
   content:
-  - name: Sample App DEV Project
+  - name: Spring Boot Application DEV Project
     template: "{{ template_dir }}/project.yml"
     action: create
     params_from_vars:
@@ -68,7 +79,7 @@ openshift_cluster_content:
       NAMESPACE_DISPLAY_NAME: "{{ sb_dev_namespace_desc }}"
     tags:
     - projects
-  - name: Sample App STAGE Project
+  - name: Spring Boot Application STAGE Project
     template: "{{ template_dir }}/project.yml"
     action: create
     params_from_vars:
@@ -76,7 +87,7 @@ openshift_cluster_content:
       NAMESPACE_DISPLAY_NAME: "{{ sb_stage_namespace_desc }}"
     tags:
     - projects
-  - name: Sample App PROD Project
+  - name: Spring Boot Application PROD Project
     template: "{{ template_dir }}/project.yml"
     action: create
     params_from_vars:
@@ -96,19 +107,19 @@ openshift_cluster_content:
 
 - object: Deployments
   content:
-  - name: "Sample App Deployment DEV"
+  - name: "Spring Boot Application Deployment DEV"
     template: "{{ template_dir }}/deployment.yml"
     params_from_vars: "{{ sb_dev_deploy_vars }}"
     namespace: "{{ sb_dev_namespace }}"
     tags:
     - dev
-  - name: "Sample App Deployment STAGE"
+  - name: "Spring Boot Application Deployment STAGE"
     template: "{{ template_dir }}/deployment.yml"
     params_from_vars: "{{ sb_stage_deploy_vars }}"
     namespace: "{{ sb_stage_namespace }}"
     tags:
     - stage
-  - name: "Sample App Deployment PROD"
+  - name: "Spring Boot Application Deployment PROD"
     template: "{{ template_dir }}/deployment.yml"
     params_from_vars: "{{ sb_prod_deploy_vars }}"
     namespace: "{{ sb_prod_namespace }}"
